@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GeoNusantara — Sistem Informasi Geografis Indonesia</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <i class="fa-solid fa-earth-asia"></i>
+    </div>
+    <span class="nav-title">GeoNusantara<span class="nav-dot">.</span></span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#peta" class="nav-link active"><i class="fa-solid fa-map"></i> Peta</a></li>
+    <li><a href="#statistik" class="nav-link"><i class="fa-solid fa-chart-bar"></i> Statistik</a></li>
+    <li><a href="#analisis" class="nav-link"><i class="fa-solid fa-magnifying-glass-chart"></i> Analisis</a></li>
+    <li><a href="#laporan" class="nav-link"><i class="fa-solid fa-file-lines"></i> Laporan</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-icon" id="themeToggle" title="Toggle Theme"><i class="fa-solid fa-moon"></i></button>
+    <button class="btn-primary"><i class="fa-solid fa-plus"></i> Tambah Layer</button>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="grid-lines"></div>
+    <div class="scan-line"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="pulse-dot"></span> SISTEM AKTIF • DATA REAL-TIME</div>
+    <h1 class="hero-title">Sistem Informasi<br><span class="text-accent">Geografis</span><br>Nusantara</h1>
+    <p class="hero-desc">Platform GIS terpadu untuk pemetaan, analisis spasial, dan visualisasi data wilayah Indonesia secara komprehensif dan akurat.</p>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-num" data-target="34">0</span><span class="stat-label">Provinsi</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num" data-target="514">0</span><span class="stat-label">Kabupaten/Kota</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-num" data-target="17000">0</span><span class="stat-label">+ Pulau</span></div>
+    </div>
+    <div class="hero-btns">
+      <a href="#peta" class="btn-hero-primary"><i class="fa-solid fa-map-location-dot"></i> Buka Peta Interaktif</a>
+      <a href="#statistik" class="btn-hero-secondary"><i class="fa-solid fa-chart-line"></i> Lihat Statistik</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="globe-container">
+      <div class="globe-ring ring-1"></div>
+      <div class="globe-ring ring-2"></div>
+      <div class="globe-ring ring-3"></div>
+      <div class="globe-core">
+        <i class="fa-solid fa-earth-asia"></i>
+      </div>
+      <div class="orbit-dot dot-1"></div>
+      <div class="orbit-dot dot-2"></div>
+      <div class="orbit-dot dot-3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="sbar-item"><i class="fa-solid fa-temperature-high"></i><span>Suhu Rata-rata: <b>27.3°C</b></span></div>
+    <div class="sbar-divider"></div>
+    <div class="sbar-item"><i class="fa-solid fa-droplet"></i><span>Curah Hujan: <b>2.400 mm/thn</b></span></div>
+    <div class="sbar-divider"></div>
+    <div class="sbar-item"><i class="fa-solid fa-people-group"></i><span>Populasi: <b>275,7 Juta</b></span></div>
+    <div class="sbar-divider"></div>
+    <div class="sbar-item"><i class="fa-solid fa-tree"></i><span>Tutupan Hutan: <b>51.4%</b></span></div>
+    <div class="sbar-divider"></div>
+    <div class="sbar-item"><i class="fa-solid fa-water"></i><span>Luas Lautan: <b>3,25 juta km²</b></span></div>
+  </div>
+</div>
+
+<!-- PETA SECTION -->
+<section class="map-section" id="peta">
+  <div class="section-header">
+    <div class="section-tag">PETA INTERAKTIF</div>
+    <h2 class="section-title">Jelajahi Wilayah <span class="text-accent">Indonesia</span></h2>
+    <p class="section-desc">Navigasi, zoom, dan eksplorasi data spasial secara real-time di seluruh kepulauan Indonesia</p>
+  </div>
+
+  <div class="map-container">
+    <!-- Sidebar Layer Control -->
+    <div class="map-sidebar" id="mapSidebar">
+      <div class="sidebar-header">
+        <h3><i class="fa-solid fa-layer-group"></i> Kontrol Layer</h3>
+        <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-chevron-left"></i></button>
+      </div>
+
+      <!-- Base Maps -->
+      <div class="layer-group">
+        <div class="layer-group-title">Peta Dasar</div>
+        <div class="layer-options">
+          <label class="layer-radio"><input type="radio" name="basemap" value="osm" checked><span class="radio-custom"></span>OpenStreetMap</label>
+          <label class="layer-radio"><input type="radio" name="basemap" value="satellite"><span class="radio-custom"></span>Satelit</label>
+          <label class="layer-radio"><input type="radio" name="basemap" value="topo"><span class="radio-custom"></span>Topografi</label>
+          <label class="layer-radio"><input type="radio" name="basemap" value="dark"><span class="radio-custom"></span>Dark Mode</label>
+        </div>
+      </div>
+
+      <!-- Overlay Layers -->
+      <div class="layer-group">
+        <div class="layer-group-title">Layer Overlay</div>
+        <label class="layer-check"><input type="checkbox" id="layerProvinsi" checked><span class="check-custom"></span><i class="fa-solid fa-map-pin"></i> Batas Provinsi</label>
+        <label class="layer-check"><input type="checkbox" id="layerPopulasi"><span class="check-custom"></span><i class="fa-solid fa-people-group"></i> Kepadatan Penduduk</label>
+        <label class="layer-check"><input type="checkbox" id="layerRawan"><span class="check-custom"></span><i class="fa-solid fa-triangle-exclamation"></i> Zona Rawan Bencana</label>
+        <label class="layer-check"><input type="checkbox" id="layerHutan"><span class="check-custom"></span><i class="fa-solid fa-tree"></i> Tutupan Hutan</label>
+        <label class="layer-check"><input type="checkbox" id="layerInfra"><span class="check-custom"></span><i class="fa-solid fa-road"></i> Infrastruktur</label>
+      </div>
+
+      <!-- Opacity Control -->
+      <div class="layer-group">
+        <div class="layer-group-title">Transparansi Overlay</div>
+        <div class="opacity-control">
+          <input type="range" class="opacity-slider" id="opacitySlider" min="0" max="100" value="70"/>
+          <span id="opacityValue">70%</span>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="layer-group legend-group">
+        <div class="layer-group-title">Legenda</div>
+        <div class="legend-items">
+          <div class="legend-item"><span class="legend-color" style="background:#10b981"></span>Hutan Primer</div>
+          <div class="legend-item"><span class="legend-color" style="background:#34d399"></span>Hutan Sekunder</div>
+          <div class="legend-item"><span class="legend-color" style="background:#fbbf24"></span>Lahan Pertanian</div>
+          <div class="legend-item"><span class="legend-color" style="background:#f87171"></span>Zona Rawan Tinggi</div>
+          <div class="legend-item"><span class="legend-color" style="background:#60a5fa"></span>Perairan</div>
+          <div class="legend-item"><span class="legend-color" style="background:#a78bfa"></span>Area Urban</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Map -->
+    <div class="map-wrapper">
+      <div id="map"></div>
+
+      <!-- Map Toolbar -->
+      <div class="map-toolbar">
+        <button class="map-tool active" id="toolSelect" title="Pilih"><i class="fa-solid fa-arrow-pointer"></i></button>
+        <button class="map-tool" id="toolMeasure" title="Ukur Jarak"><i class="fa-solid fa-ruler"></i></button>
+        <button class="map-tool" id="toolDraw" title="Gambar Area"><i class="fa-solid fa-pen"></i></button>
+        <button class="map-tool" id="toolSearch" title="Cari Lokasi"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="tool-divider"></div>
+        <button class="map-tool" id="toolZoomIn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+        <button class="map-tool" id="toolZoomOut" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+        <button class="map-tool" id="toolHome" title="Reset View"><i class="fa-solid fa-house"></i></button>
+        <div class="tool-divider"></div>
+        <button class="map-tool" id="toolFullscreen" title="Layar Penuh"><i class="fa-solid fa-expand"></i></button>
+        <button class="map-tool" id="toolExport" title="Export Peta"><i class="fa-solid fa-download"></i></button>
+      </div>
+
+      <!-- Search Box -->
+      <div class="map-search" id="mapSearchBox" style="display:none">
+        <input type="text" id="searchInput" placeholder="Cari kota, provinsi, koordinat..."/>
+        <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+
+      <!-- Coordinate Display -->
+      <div class="map-coords" id="mapCoords">
+        <i class="fa-solid fa-crosshairs"></i>
+        <span id="coordLat">0.0000°</span>
+        <span id="coordLng">0.0000°</span>
+      </div>
+
+      <!-- Scale Bar -->
+      <div class="map-scale">
+        <div class="scale-bar"></div>
+        <span class="scale-label">100 km</span>
+      </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="map-info-panel" id="infoPanel">
+      <div class="info-panel-header">
+        <h4><i class="fa-solid fa-circle-info"></i> Info Wilayah</h4>
+        <button id="closePanelBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="info-panel-body" id="infoPanelBody">
+        <div class="info-placeholder">
+          <i class="fa-solid fa-hand-pointer"></i>
+          <p>Klik pada wilayah di peta untuk melihat informasi detail</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATISTIK SECTION -->
+<section class="stats-section" id="statistik">
+  <div class="section-header">
+    <div class="section-tag">DATA & STATISTIK</div>
+    <h2 class="section-title">Analisis Data <span class="text-accent">Spasial</span></h2>
+    <p class="section-desc">Visualisasi data demografis, lingkungan, dan pembangunan wilayah Indonesia</p>
+  </div>
+
+  <div class="stats-grid">
+    <!-- Card Populasi -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon" style="--icon-color:#10b981"><i class="fa-solid fa-people-group"></i></div>
+        <div>
+          <div class="stat-card-title">Populasi Per Pulau</div>
+          <div class="stat-card-subtitle">Distribusi Penduduk 2024</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="chartPopulasi"></canvas>
+      </div>
+    </div>
+
+    <!-- Card Kepadatan -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon" style="--icon-color:#f59e0b"><i class="fa-solid fa-city"></i></div>
+        <div>
+          <div class="stat-card-title">Kepadatan Penduduk</div>
+          <div class="stat-card-subtitle">Jiwa per km² per Provinsi</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="chartKepadatan"></canvas>
+      </div>
+    </div>
+
+    <!-- Card Hutan -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon" style="--icon-color:#34d399"><i class="fa-solid fa-tree"></i></div>
+        <div>
+          <div class="stat-card-title">Tutupan Hutan</div>
+          <div class="stat-card-subtitle">Perubahan 2000–2024</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="chartHutan"></canvas>
+      </div>
+    </div>
+
+    <!-- Card Bencana -->
+    <div class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-card-icon" style="--icon-color:#f87171"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div>
+          <div class="stat-card-title">Kejadian Bencana</div>
+          <div class="stat-card-subtitle">Rekap 2024 per Jenis</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="chartBencana"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="data-table-section">
+    <div class="table-header">
+      <h3><i class="fa-solid fa-table"></i> Data Provinsi Indonesia</h3>
+      <div class="table-controls">
+        <input type="text" class="table-search" id="tableSearch" placeholder="Cari provinsi..."/>
+        <select class="table-filter" id="tableFilter">
+          <option value="all">Semua Pulau</option>
+          <option value="Sumatera">Sumatera</option>
+          <option value="Jawa">Jawa</option>
+          <option value="Kalimantan">Kalimantan</option>
+          <option value="Sulawesi">Sulawesi</option>
+          <option value="Papua">Papua</option>
+        </select>
+        <button class="btn-export-table" id="exportCSV"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th class="sortable" data-col="provinsi">Provinsi <i class="fa-solid fa-sort"></i></th>
+            <th class="sortable" data-col="pulau">Pulau <i class="fa-solid fa-sort"></i></th>
+            <th class="sortable" data-col="populasi">Populasi <i class="fa-solid fa-sort"></i></th>
+            <th class="sortable" data-col="luas">Luas (km²) <i class="fa-solid fa-sort"></i></th>
+            <th class="sortable" data-col="kepadatan">Kepadatan <i class="fa-solid fa-sort"></i></th>
+            <th>Indeks Risiko</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="table-pagination" id="tablePagination"></div>
+  </div>
+</section>
+
+<!-- ANALISIS SECTION -->
+<section class="analisis-section" id="analisis">
+  <div class="section-header">
+    <div class="section-tag">ALAT ANALISIS</div>
+    <h2 class="section-title">Analisis <span class="text-accent">Spasial</span> Terpadu</h2>
+    <p class="section-desc">Gunakan alat analisis GIS untuk mengolah dan menginterpretasi data geografis</p>
+  </div>
+
+  <div class="analisis-grid">
+    <!-- Buffer Analysis -->
+    <div class="analisis-card" id="bufferCard">
+      <div class="analisis-icon"><i class="fa-solid fa-circle-dot"></i></div>
+      <h4>Buffer Analysis</h4>
+      <p>Buat zona buffer di sekitar titik, garis, atau area untuk analisis jangkauan layanan</p>
+      <div class="analisis-form">
+        <label>Radius Buffer (km)</label>
+        <input type="number" class="form-input" id="bufferRadius" value="50" min="1" max="500"/>
+        <label>Tipe Geometri</label>
+        <select class="form-select" id="bufferType">
+          <option>Titik (Point)</option>
+          <option>Garis (Line)</option>
+          <option>Area (Polygon)</option>
+        </select>
+        <button class="btn-analisis" id="runBuffer"><i class="fa-solid fa-play"></i> Jalankan</button>
+      </div>
+      <div class="analisis-result" id="bufferResult"></div>
+    </div>
+
+    <!-- Overlay Analysis -->
+    <div class="analisis-card" id="overlayCard">
+      <div class="analisis-icon"><i class="fa-solid fa-layer-group"></i></div>
+      <h4>Overlay Analysis</h4>
+      <p>Gabungkan beberapa layer untuk mengidentifikasi pola dan hubungan spasial antar data</p>
+      <div class="analisis-form">
+        <label>Layer 1</label>
+        <select class="form-select">
+          <option>Batas Administrasi</option>
+          <option>Penggunaan Lahan</option>
+          <option>Zona Rawan Bencana</option>
+        </select>
+        <label>Layer 2</label>
+        <select class="form-select">
+          <option>Kepadatan Penduduk</option>
+          <option>Infrastruktur</option>
+          <option>Tutupan Hutan</option>
+        </select>
+        <label>Operasi</label>
+        <select class="form-select">
+          <option>Intersect</option>
+          <option>Union</option>
+          <option>Clip</option>
+        </select>
+        <button class="btn-analisis" id="runOverlay"><i class="fa-solid fa-play"></i> Jalankan</button>
+      </div>
+      <div class="analisis-result" id="overlayResult"></div>
+    </div>
+
+    <!-- Hotspot Analysis -->
+    <div class="analisis-card" id="hotspotCard">
+      <div class="analisis-icon"><i class="fa-solid fa-fire"></i></div>
+      <h4>Hotspot Analysis</h4>
+      <p>Identifikasi kluster spasial dan area dengan konsentrasi tinggi dari suatu fenomena</p>
+      <div class="analisis-form">
+        <label>Variabel Analisis</label>
+        <select class="form-select">
+          <option>Titik Panas (Hotspot Kebakaran)</option>
+          <option>Kemiskinan Wilayah</option>
+          <option>Kepadatan Penduduk</option>
+          <option>Kejadian Bencana</option>
+        </select>
+        <label>Metode</label>
+        <select class="form-select">
+          <option>Kernel Density</option>
+          <option>Getis-Ord Gi*</option>
+          <option>Moran's I</option>
+        </select>
+        <button class="btn-analisis" id="runHotspot"><i class="fa-solid fa-play"></i> Jalankan</button>
+      </div>
+      <div class="analisis-result" id="hotspotResult"></div>
+    </div>
+
+    <!-- Proximity Analysis -->
+    <div class="analisis-card" id="proximityCard">
+      <div class="analisis-icon"><i class="fa-solid fa-route"></i></div>
+      <h4>Proximity Analysis</h4>
+      <p>Hitung jarak terdekat dan aksesibilitas antara fitur-fitur geografis</p>
+      <div class="analisis-form">
+        <label>Titik Asal (Lat, Lng)</label>
+        <input type="text" class="form-input" id="originCoord" placeholder="-6.2088, 106.8456"/>
+        <label>Target Fasilitas</label>
+        <select class="form-select">
+          <option>Rumah Sakit</option>
+          <option>Sekolah</option>
+          <option>Pos Pemadam</option>
+          <option>SPBU</option>
+        </select>
+        <button class="btn-analisis" id="runProximity"><i class="fa-solid fa-play"></i> Hitung Jarak</button>
+      </div>
+      <div class="analisis-result" id="proximityResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- LAPORAN SECTION -->
+<section class="laporan-section" id="laporan">
+  <div class="section-header">
+    <div class="section-tag">LAPORAN & EKSPOR</div>
+    <h2 class="section-title">Unduh <span class="text-accent">Laporan</span> & Data</h2>
+    <p class="section-desc">Ekspor data spasial dan laporan analisis dalam berbagai format</p>
+  </div>
+
+  <div class="laporan-grid">
+    <div class="laporan-card" onclick="downloadReport('pdf')">
+      <div class="laporan-icon"><i class="fa-solid fa-file-pdf"></i></div>
+      <h4>Laporan PDF</h4>
+      <p>Laporan lengkap dengan peta dan analisis data spasial</p>
+      <div class="laporan-meta"><span><i class="fa-solid fa-file"></i> ~2.4 MB</span><span><i class="fa-solid fa-clock"></i> Diperbarui hari ini</span></div>
+      <button class="btn-download">Unduh PDF <i class="fa-solid fa-download"></i></button>
+    </div>
+
+    <div class="laporan-card" onclick="downloadReport('shp')">
+      <div class="laporan-icon"><i class="fa-solid fa-shapes"></i></div>
+      <h4>Shapefile (SHP)</h4>
+      <p>Data vektor batas administrasi Indonesia format ArcGIS/QGIS</p>
+      <div class="laporan-meta"><span><i class="fa-solid fa-file"></i> ~18.7 MB</span><span><i class="fa-solid fa-clock"></i> Diperbarui minggu ini</span></div>
+      <button class="btn-download">Unduh SHP <i class="fa-solid fa-download"></i></button>
+    </div>
+
+    <div class="laporan-card" onclick="downloadReport('geojson')">
+      <div class="laporan-icon"><i class="fa-solid fa-code"></i></div>
+      <h4>GeoJSON</h4>
+      <p>Format data geospasial untuk pengembangan web dan API</p>
+      <div class="laporan-meta"><span><i class="fa-solid fa-file"></i> ~12.1 MB</span><span><i class="fa-solid fa-clock"></i> Diperbarui minggu ini</span></div>
+      <button class="btn-download">Unduh GeoJSON <i class="fa-solid fa-download"></i></button>
+    </div>
+
+    <div class="laporan-card" onclick="downloadReport('csv')">
+      <div class="laporan-icon"><i class="fa-solid fa-table"></i></div>
+      <h4>Data Atribut CSV</h4>
+      <p>Tabel data atribut wilayah untuk analisis statistik</p>
+      <div class="laporan-meta"><span><i class="fa-solid fa-file"></i> ~3.2 MB</span><span><i class="fa-solid fa-clock"></i> Diperbarui hari ini</span></div>
+      <button class="btn-download">Unduh CSV <i class="fa-solid fa-download"></i></button>
+    </div>
+
+    <div class="laporan-card" onclick="downloadReport('kml')">
+      <div class="laporan-icon"><i class="fa-brands fa-google"></i></div>
+      <h4>KML / KMZ</h4>
+      <p>Format kompatibel Google Earth dan Maps untuk visualisasi 3D</p>
+      <div class="laporan-meta"><span><i class="fa-solid fa-file"></i> ~8.5 MB</span><span><i class="fa-solid fa-clock"></i> Diperbarui bulan ini</span></div>
+      <button class="btn-download">Unduh KML <i class="fa-solid fa-download"></i></button>
+    </div>
+
+    <div class="laporan-card" onclick="downloadReport('excel')">
+      <div class="laporan-icon"><i class="fa-solid fa-file-excel"></i></div>
+      <h4>Excel Statistik</h4>
+      <p>Spreadsheet lengkap data statistik wilayah dengan grafik terintegrasi</p>
+      <div class="laporan-meta"><span><i class="fa-solid fa-file"></i> ~5.6 MB</span><span><i class="fa-solid fa-clock"></i> Diperbarui hari ini</span></div>
+      <button class="btn-download">Unduh Excel <i class="fa-solid fa-download"></i></button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-brand">
+      <div class="footer-logo"><i class="fa-solid fa-earth-asia"></i></div>
+      <div>
+        <div class="footer-name">GeoNusantara</div>
+        <div class="footer-tagline">Sistem Informasi Geografis Indonesia</div>
+      </div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="#">Peta Interaktif</a>
+        <a href="#">Analisis Spasial</a>
+        <a href="#">Data Repository</a>
+        <a href="#">API Endpoint</a>
+      </div>
+      <div class="footer-col">
+        <h5>Data</h5>
+        <a href="#">Batas Administrasi</a>
+        <a href="#">Demografi</a>
+        <a href="#">Lingkungan</a>
+        <a href="#">Infrastruktur</a>
+      </div>
+      <div class="footer-col">
+        <h5>Bantuan</h5>
+        <a href="#">Dokumentasi</a>
+        <a href="#">Tutorial</a>
+        <a href="#">Kontak</a>
+        <a href="#">Tentang Kami</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 GeoNusantara. Sistem Informasi Geografis Indonesia</span>
+    <span>Data: BPS, BNPB, KLHK, Kemendagri</span>
+  </div>
+</footer>
+
+<!-- NOTIFICATION TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-ring"></div>
+  <p>Memuat data...</p>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
